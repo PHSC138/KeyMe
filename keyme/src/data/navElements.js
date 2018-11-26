@@ -5,16 +5,12 @@ export default {
             "url":"/",
         },
         {
-            "text":"View1",
-            "url":"/view1",
+            "text":"About",
+            "url":"/about",
         },
         {
-            "text":"View2",
-            "url":"/view2",
-        },
-        {
-            "text":"Examples",
-            "url":"/examples",
+            "text":"Hash",
+            "url":"/hash",
         }
     ]
 };
