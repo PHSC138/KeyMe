@@ -1,0 +1,10 @@
+Database:
+    keyme
+Tables:
+    hashes
+        salt
+        hash algorithm
+        iterations
+        hash
+        time to hash
+        date created
