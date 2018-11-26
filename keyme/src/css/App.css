@@ -1,0 +1,22 @@
+.App {
+    text-align: center;
+}
+
+.NavBar{
+    color:black;
+    display:inline-block;
+    list-style:none;
+    width:100%;
+}
+.NavElement{
+    float:left;
+    padding:10vmin;
+}
+.NavLink{
+    font-size:1.5em;
+    display:block;
+    text-decoration:none;
+}
+a, a:visited{
+    color:inherit;
+}

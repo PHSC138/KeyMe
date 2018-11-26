@@ -1,29 +1,28 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React,{Component} from 'react';
+import {BrowserRouter as Router,Route} from 'react-router-dom'
+import Nav from './components/top_nav';
+import View1 from './components/view1'
+import View2 from './components/view2'
+import './css/App.css';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            I did.
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+class App extends Component{
+    render(){
+        return(
+            <Router>
+                <div className="App">
+                    <Nav/>
+                    <Route exact={true} path="/" render={() => (
+                        <h1>welcome</h1>
+                    )}/>
+                    <Route path="/view1" component={View1}/>
+                    <Route path="/view2" component={View2}/>
+                    <Route path="/examples" render={()=>(
+                        <h1>examples</h1>
+                    )}/>
+                </div>
+            </Router>
+        );
+    }
 }
 
 export default App;

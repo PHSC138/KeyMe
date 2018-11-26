@@ -1,0 +1,15 @@
+import React, { Component } from 'react';
+import NavBar from './nav_bar';
+import '../css/App.css';
+
+class Nav extends Component{
+    render(){
+        return(
+            <div className="Nav">
+                <NavBar/>
+            </div>
+        );
+    }
+}
+
+export default Nav;
