@@ -5,15 +5,17 @@ export default {
             "url":"/",
         },
         {
-            "text":"About",
-            "url":"/about",
-        },
-        {
             "text":"Hash",
             "url":"/hash",
+        },
+        {
+            "text":"Database",
+            "url":"/db",
+        },
+        {
+            "text":"About",
+            "url":"/about",
         }
     ]
 };
-
-
 

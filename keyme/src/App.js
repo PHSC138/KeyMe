@@ -14,11 +14,8 @@ class App extends Component{
                     <Route exact={true} path="/" render={()=>(
                         <h1>welcome</h1>
                     )}/>
-                    <Route path="/about" component={AboutView}/>
                     <Route path="/hash" component={HashView}/>
-                    <Route path="/examples" render={()=>(
-                        <h1>examples</h1>
-                    )}/>
+                    <Route path="/about" component={AboutView}/>
                 </div>
             </Router>
         );

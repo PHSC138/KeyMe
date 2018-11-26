@@ -31,14 +31,14 @@ class HashView extends Component{
         };
         var t0=performance.now();
 
-        //Breaks on the return
+        //secash breaks while returning
         try{
             sechash.strongHash(this.state.string,opts,function(err,hash){
                 var t1=performance.now();
                 alert("Hash: "+hash+"\nTook: "+(t1-t0)+" milliseconds.")
             });
         }catch(e){
-
+            //Do nothing
         }
     }
 
