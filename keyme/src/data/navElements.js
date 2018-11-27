@@ -1,5 +1,5 @@
-export default {
-    elements: [
+export default{
+    elements:[
         {
             "text":"Home",
             "url":"/",

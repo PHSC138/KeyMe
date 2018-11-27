@@ -2,7 +2,7 @@
 CS252-Lab-6
 
 Team:
-    Ryan Hennessee hennessr@purdue.edu
+    PHSC138
 
 Name:
     KeyMe
