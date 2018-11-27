@@ -25,11 +25,37 @@ router.get("/",function(req,res){
         functions:{
             get:{
                 "/":"Welcome message and help",
+                "/getdb":"Returns json database",
             },
             post:{
                 "/hash":"Inserts new hash to database with the form {\"data\":\"salt:algorithm:iterations:hash:hash_time}\""
             },
         },
+    });
+});
+
+router.get("/getdb",function(req,res){
+    var date=new Date();
+    var dd=date.getDate();
+    var mm=date.getMonth()+1;
+
+    if(dd<10)dd='0'+dd
+    if(mm<10)mm='0'+mm
+    date=mm+'/'+dd+'/'+date.getFullYear();
+
+    var dynamodb=new AWS.DynamoDB();
+    var params={
+        TableName:config.aws_table_name,
+    };
+    dynamodb.scan(params,function(err,data){
+        if(err){
+            res.json({message:err});
+            console.log(err,err.stack); // an error occurred
+        }
+        else{
+            res.json({message:data});
+            console.log(data);           // successful response
+        }
     });
 });
 
