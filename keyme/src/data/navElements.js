@@ -9,6 +9,10 @@ export default {
             "url":"/hash",
         },
         {
+            "text":"Crack",
+            "url":"/crack",
+        },
+        {
             "text":"Database",
             "url":"/db",
         },

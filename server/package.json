@@ -2,15 +2,20 @@
   "name": "keyme-api",
   "main": "server.js",
   "dependencies": {
+    "aws-sdk": "^2.362.0",
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
-    "mongoose": "^5.3.13"
+    "mongoose": "^5.3.13",
+    "validator": "^10.9.0"
   },
   "scripts": {
     "start": "node server.js"
   },
   "version": "1.0.0",
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^10.12.10"
+  },
   "author": "",
   "license": "MIT",
   "description": ""
