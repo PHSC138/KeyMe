@@ -13,4 +13,4 @@ Description:
 Technologies:
     NodeJS
     React
-    MySQL
+    NoSQL
