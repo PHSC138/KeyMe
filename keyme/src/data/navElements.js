@@ -13,6 +13,10 @@ export default{
             "url":"/crack",
         },
         {
+            "text":"Test",
+            "url":"/test",
+        },
+        {
             "text":"Database",
             "url":"/db",
         },

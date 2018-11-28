@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-class DatabaseView extends Component{
+export default class DatabaseView extends Component{
     constructor(props){
         super(props);
         this.state={
@@ -69,4 +69,3 @@ class DatabaseView extends Component{
     }
 }
 
-export default DatabaseView;

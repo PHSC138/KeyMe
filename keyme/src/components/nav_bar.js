@@ -4,7 +4,7 @@ import NavLink from "./nav_link";
 //Links data
 import elements from "../data/navElements";
 
-class NavBar extends Component{
+export default class NavBar extends Component{
     render(){
         let links=[];
         for(let i=0;i<elements.elements.length;i++){
@@ -18,4 +18,3 @@ class NavBar extends Component{
     }
 }
 
-export default NavBar;

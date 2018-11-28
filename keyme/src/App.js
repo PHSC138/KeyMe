@@ -3,11 +3,12 @@ import {BrowserRouter as Router,Route} from 'react-router-dom';
 import Nav from './components/top_nav';
 import HashView from './components/hashView';
 import CrackView from './components/crackView';
+import TestView from './components/testView';
 import DatabaseView from './components/dbView';
 import AboutView from './components/aboutView';
 import './css/App.css';
 
-class App extends Component{
+export default class App extends Component{
     render(){
         return(
             <Router>
@@ -17,11 +18,12 @@ class App extends Component{
                         <div>
                             <h1>welcome</h1>
                             <h4>Don't join the others in the doom zone</h4>
-                            <img style={{width:'40%',height:'40%'}} src={require('./data/doom_zone.png')} />
+                            <img style={{width:'40%',height:'40%'}} alt="doom_zone" src={require('./data/doom_zone.png')} />
                         </div>
                     )}/>
                     <Route path="/hash" component={HashView}/>
                     <Route path="/crack" component={CrackView}/>
+                    <Route path="/test" component={TestView}/>
                     <Route path="/db" component={DatabaseView}/>
                     <Route path="/about" component={AboutView}/>
                 </div>
@@ -30,4 +32,3 @@ class App extends Component{
     }
 }
 
-export default App;
