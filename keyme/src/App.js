@@ -14,7 +14,11 @@ class App extends Component{
                 <div className="App">
                     <Nav/>
                     <Route exact={true} path="/" render={()=>(
-                        <h1>welcome</h1>
+                        <div>
+                            <h1>welcome</h1>
+                            <h4>Don't join the others in the doom zone</h4>
+                            <img style={{width:'40%',height:'40%'}} src={require('./data/doom_zone.png')} />
+                        </div>
                     )}/>
                     <Route path="/hash" component={HashView}/>
                     <Route path="/crack" component={CrackView}/>

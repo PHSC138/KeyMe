@@ -28,21 +28,14 @@ router.get("/",function(req,res){
                 "/getdb":"Returns json database",
             },
             post:{
-                "/hash":"Inserts new hash to database with the form {\"data\":\"salt:algorithm:iterations:hash:hash_time}\""
+                "/hash":"Inserts new hash to database with the form {\"data\":\"salt:algorithm:iterations:hash:hash_time}\"",
+                "/crack":"Checks hash in databse with the form {\"data\":\"hash\"",
             },
         },
     });
 });
 
 router.get("/getdb",function(req,res){
-    var date=new Date();
-    var dd=date.getDate();
-    var mm=date.getMonth()+1;
-
-    if(dd<10)dd='0'+dd
-    if(mm<10)mm='0'+mm
-    date=mm+'/'+dd+'/'+date.getFullYear();
-
     var dynamodb=new AWS.DynamoDB();
     var params={
         TableName:config.aws_table_name,
@@ -148,6 +141,81 @@ router.route('/hash').post(function(req,res){
         else res.json({message:result});
         console.log(""+result);
     });
+});
+
+router.route('/crack').post(function(req,res){
+    //Get hash from body of request with form:
+    //4edf07edc95b2fdcbcaf2378fd12d8ac212c2aa6e326c59c3e629be3039d6432
+    var hash=req.body.data;
+    console.log(req.body);
+    if(hash===undefined){
+        res.json({message:"data undefined"});
+        return;
+    }
+
+    var dynamodb=new AWS.DynamoDB();
+
+    console.log("Getting item for hash.");
+    var params={
+        TableName:config.aws_table_name,
+        Key:{
+            "hash":{
+                S:hash
+            },
+        },
+        AttributesToGet:[
+            'cracks',
+        ],
+    }
+    dynamodb.getItem(params,function(err,data){
+        if(err){
+            res.json({message:err});
+            console.log(err, err.stack); // an error occurred
+            return;
+        }
+        console.log(data);           // successful response
+        if(Object.keys(data).length===0&&data.constructor===Object){
+            res.json({message:"hash not found"});
+            return;
+        }
+        let cracks=parseInt(data.Item.cracks.N);
+        cracks+=1;
+        cracks=cracks.toString();
+
+        console.log("Updating item");
+        var params={
+            TableName:config.aws_table_name,
+            Key:{
+                "hash":{
+                    S:hash
+                },
+            },
+            ExpressionAttributeNames:{
+                "#C":"cracks"
+            },
+            ExpressionAttributeValues: {
+                ":n":{
+                    N:cracks
+                },
+            },
+            ReturnValues:"ALL_NEW",
+            UpdateExpression: "SET #C=:n"
+        }
+
+        dynamodb.updateItem(params,function(err, data){
+            if(err){
+                res.json({message:err});
+                console.log(err, err.stack); // an error occurred
+                return;
+            }
+            else{
+                console.log(data);           // successful response
+                res.json({message:"success"});
+                return;
+            }
+        });
+    });
+
 });
 
 app.use("/api",router);

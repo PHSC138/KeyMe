@@ -4,7 +4,7 @@ var sechash=require('sechash');
 class HashView extends Component{
     constructor(props) {
         super(props);
-        this.state={string:'',iterations:1,salt:''};
+        this.state={string:'',algorithm:'sha256',iterations:1,salt:''};
 
         this.handleStringChange=this.handleStringChange.bind(this);
         this.handleIterationsChange=this.handleIterationsChange.bind(this);
@@ -24,7 +24,7 @@ class HashView extends Component{
 
     doHash(){
         var opts={
-            algorithm:'sha256',
+            algorithm:this.state.algorithm,
             iterations:this.state.iterations,
             //LastPass: 105000
             salt:this.state.salt
@@ -61,7 +61,7 @@ class HashView extends Component{
     render(){
         return(
             <div>
-                <h1>hashview</h1>
+                <h1>Hash</h1>
                 <table align="center">
                     <tbody>
                         <tr>
