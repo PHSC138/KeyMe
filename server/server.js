@@ -24,13 +24,33 @@ router.get("/",function(req,res){
         message:"KeyMe-API",
         functions:{
             get:{
-                "/":"Welcome message and help",
-                "/getdb":"Returns json database",
+                "/":{
+                    "params":"none",
+                    "return":"this message",
+                    "description":"Welcome message and help",
+                },
+                "/getdb":{
+                    "params":"none",
+                    "return":"{\"cracks\":{\"N\":\"0\"},\"hash\":{\"S\":\"4edf08edc95b2fdcbcaf2378fd12d8ac212c2aa6e326c59c3e629be3039d6432\"},\"date\":{\"S\":\"11/27/2018\"},\"hash_time\":{\"N\":\"22\"},\"salt\":{\"S\":\"exampleSalt\"},\"algorithm\":{\"S\":\"sha256\"},\"iterations\":{\"N\":\"1\"}}",
+                    "description":"Gets hashes in database"
+                },
+                "/user":{
+                    "params":"?user=username",
+                    "return":"{\"cracks\":\"4\"}",
+                    "description":"Gets user cracks",
+                },
             },
             post:{
-                "/hash":"Inserts new hash to database with the form: {\"data\":\"salt:algorithm:iterations:hash:hash_time}\"",
-                "/crack":"Checks hash in databse with the form: {\"data\":\"hash:username\"} will update user cracks and hash cracks",
-                "/user":"Returns user cracks in database with the form: {\"data\":\"username\"}",
+                "/hash":{
+                    "body":"{\"data\":\"salt:algorithm:iterations:hash:hash_time\"}",
+                    "return":"{\"message\":\"success\"} or error message",
+                    "description":"Inserts hash into to database",
+                },
+                "/crack":{
+                    "body":"{\"data\":\"hash:username\"}",
+                    "return":"{\"message\":\"success\"} or error message",
+                    "description":"Checks hash in databse and updates user cracks and hash cracks",
+                },
             },
         },
     });
@@ -38,25 +58,19 @@ router.get("/",function(req,res){
 
 router.get("/getdb",function(req,res){
     var dynamodb=new AWS.DynamoDB();
-    var params={
-        TableName:config.aws_table_name,
-    };
+    var params={TableName:config.aws_table_name};
     dynamodb.scan(params,function(err,data){
         if(err){
             res.json({message:err});
             console.log(err,err.stack); // an error occurred
-        }
-        else{
+        }else{
             res.json({message:data});
             console.log(data);           // successful response
         }
     });
 });
 
-//Add hashed password to database (accessed at POST http://localhost:3001/api/hash)
 router.route('/hash').post(function(req,res){
-    //Get hash from body of request with form:
-    //salt:sha256:1:4edf07edc95b2fdcbcaf2378fd12d8ac212c2aa6e326c59c3e629be3039d6432:22
     var data=req.body.data;
     console.log(req.body);
     if(data===undefined){
@@ -123,7 +137,7 @@ router.route('/hash').post(function(req,res){
     date=mm+'/'+dd+'/'+date.getFullYear();
 
     var dynamodb=new AWS.DynamoDB();
-    dynamodb.putItem({
+    var params={
         "TableName":config.aws_table_name,
         "Item":{
             "hash":{"S":hash},
@@ -134,25 +148,24 @@ router.route('/hash').post(function(req,res){
             "salt":{"S":salt},
             "cracks":{"N":"0"}
         }
-    },function(result){
+    }
+    dynamodb.putItem(params,function(result){
         if(result==null){
             res.json({message:"success"});
             result="success";
-        }
-        else res.json({message:result});
+        }else res.json({message:result});
         console.log(""+result);
     });
 });
 
-router.route('/crack').post(function(req,res){
-    //Get hash from body of request with form:
-    //hash:username
+router.route("/crack").post(function(req,res){
     var data=req.body.data;
     console.log(req.body);
     if(data===undefined){
         res.json({message:"data undefined"});
         return;
     }
+
     var split=data.split(":");
     var hash=split[0];
     if(hash==undefined){
@@ -165,9 +178,9 @@ router.route('/crack').post(function(req,res){
         return;
     }
 
-    var dynamodb=new AWS.DynamoDB();
 
     console.log("Getting item for hash.");
+    var dynamodb=new AWS.DynamoDB();
     var params={
         TableName:config.aws_table_name,
         Key:{"hash":{S:hash}},
@@ -219,6 +232,7 @@ router.route('/crack').post(function(req,res){
                 let uCracks=parseInt(data.Item.cracks.N);
                 uCracks+=1;
                 uCracks=uCracks.toString();
+
                 //User exists, update User cracks
                 var params={
                     TableName:config.aws_table_name2,
@@ -236,6 +250,7 @@ router.route('/crack').post(function(req,res){
             }
         });
 
+        //Continue updating the db
         let cracks=parseInt(data.Item.cracks.N);
         cracks+=1;
         cracks=cracks.toString();
@@ -255,8 +270,7 @@ router.route('/crack').post(function(req,res){
                 res.json({message:err});
                 console.log(err, err.stack); // an error occurred
                 return;
-            }
-            else{
+            }else{
                 console.log(data);           // successful response
                 res.json({message:"success"});
                 return;
@@ -266,9 +280,6 @@ router.route('/crack').post(function(req,res){
 });
 
 router.get("/user",function(req,res){
-    //Get username from body of request with form:
-    //username
-    //var id = req.query.id; // $_GET["id"]
     var username=req.query.user;
     console.log(req.body);
     if(username===undefined){
@@ -276,6 +287,7 @@ router.get("/user",function(req,res){
         return;
     };
 
+    console.log("Getting user cracks");
     var dynamodb=new AWS.DynamoDB();
     var params={
         TableName:config.aws_table_name2,
@@ -283,7 +295,6 @@ router.get("/user",function(req,res){
         AttributesToGet:['cracks'],
     };
 
-    console.log("Getting user cracks");
     dynamodb.getItem(params, function(err, data) {
         if (err){
             console.log(err, err.stack);
