@@ -18,13 +18,9 @@ export default class ProfileView extends Component{
             let username=user.getUser();
             this.setState({user:username});
             console.log(username);
-            let url="http://localhost:3001/api/user";
+            let url="http://localhost:3001/api/user?user="+username;
             console.log(url);
-            fetch(url,{
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({"data":username})
-            }).then(res=>{
+            fetch(url).then(res=>{
                 return res.json();
             }).then(data=>{
                 console.log(data);

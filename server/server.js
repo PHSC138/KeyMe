@@ -30,7 +30,7 @@ router.get("/",function(req,res){
             post:{
                 "/hash":"Inserts new hash to database with the form: {\"data\":\"salt:algorithm:iterations:hash:hash_time}\"",
                 "/crack":"Checks hash in databse with the form: {\"data\":\"hash:username\"} will update user cracks and hash cracks",
-                "/user":"Gets user cracks in database with the form: username will return number of cracks of user",
+                "/user":"Returns user cracks in database with the form: {\"data\":\"username\"}",
             },
         },
     });
@@ -265,10 +265,11 @@ router.route('/crack').post(function(req,res){
     });
 });
 
-router.post("/user",function(req,res){
+router.get("/user",function(req,res){
     //Get username from body of request with form:
     //username
-    var username=req.body.data;
+    //var id = req.query.id; // $_GET["id"]
+    var username=req.query.user;
     console.log(req.body);
     if(username===undefined){
         res.json({message:"username undefined"});
