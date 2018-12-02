@@ -66,6 +66,7 @@ export default class TestView extends Component{
     saveStateToLocalStorage(){
         //For every item in React state
         for(let key in this.state){
+            if(key==="message")continue;
             //Save to localStorage
             localStorage.setItem(key,JSON.stringify(this.state[key]));
         }

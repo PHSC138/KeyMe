@@ -4,7 +4,13 @@ var sechash=require('sechash');
 export default class HashView extends Component{
     constructor(props) {
         super(props);
-        this.state={string:'',algorithm:'sha256',iterations:1,salt:''};
+        this.state={
+            string:"",
+            algorithm:"sha256",
+            iterations:1,
+            salt:"",
+            message:""
+        };
 
         this.handleStringChange=this.handleStringChange.bind(this);
         this.handleIterationsChange=this.handleIterationsChange.bind(this);
@@ -66,12 +72,14 @@ export default class HashView extends Component{
     saveStateToLocalStorage(){
         //For every item in React state
         for(let key in this.state){
+            if(key==="message")continue;
             //Save to localStorage
             localStorage.setItem(key,JSON.stringify(this.state[key]));
         }
     }
 
     doHash(){
+        var _this=this;
         var opts={
             algorithm:this.state.algorithm,
             iterations:this.state.iterations,
@@ -99,7 +107,7 @@ export default class HashView extends Component{
                 }).then(function(res){
                     return res.json();
                 }).then(function(data){
-                    alert(JSON.stringify(data))
+                    _this.setState({message:data.message});
                 });
             });
         }catch(e){
@@ -146,6 +154,10 @@ export default class HashView extends Component{
                         </tr>
                     </tbody>
                 </table>
+                <div>
+                    {this.state.message==="success"&& <h4 style={{color:"green"}}>Response: {this.state.message}</h4>}
+                    {(this.state.message!=="success"&&this.state.message!=="")&& <h4 style={{color:"red"}}>Response: {this.state.message}</h4>}
+                </div>
             </div>
         );
     }
