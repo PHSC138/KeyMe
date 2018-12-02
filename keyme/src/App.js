@@ -25,7 +25,6 @@ export class App extends Component{
                 console.log("user from app.js: ");
                 console.log(user);
                 AWSUser.setInstance(user);
-                this.loadUserData();
             })
             .catch(err=>{
                 console.log(err);

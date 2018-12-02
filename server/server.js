@@ -18,63 +18,6 @@ var port=process.env.PORT||3001;
 app.use(cors());
 var router=express.Router();
 
-//Helper functions
-initUser=(username)=>{
-};
-
-getUserCracks=(username)=>{
-    console.log("In getUserCracks");
-    console.log(typeof(username));
-    var dynamodb=new AWS.DynamoDB();
-    //Check if username has a crack
-    //Returns positive number of cracks if successful, -1 if not found, and -2 for error
-    var params={
-        TableName:config.aws_table_name2,
-        Key:{
-            "username":{
-                S:username
-            },
-        },
-        AttributesToGet:[
-            'cracks',
-        ],
-    }
-
-    console.log("new get items");
-    dynamodb.getItem(params, function(err, data) {
-           if (err){
-               console.log("NEW GET ITEMS ERROR");
-               console.log(err, err.stack); // an error occurred
-           }
-           else{
-               console.log("NEW GET ITEMS DATA");
-               console.log(data);
-           }
-    });
-
-
-    console.log("old get items");
-    var cracks = dynamodb.getItem(params);
-
-    //console.log("cracks: ");
-    //console.log(cracks);
-    console.log("data:");
-    var data=cracks.response.data;
-    console.log(data);
-    if(data==null){
-        console.log("returning -1");
-        return -1;
-    }
-    //let cracks=1;
-    if(data===null){
-        console.log("NULL");
-        initUser(username);
-    }else{
-        cracks=parseInt(data.Item.cracks.N);
-    }
-    return cracks;
-}
-
 //Default route: http://localhost:3001/api
 router.get("/",function(req,res){
     res.json({
@@ -85,8 +28,9 @@ router.get("/",function(req,res){
                 "/getdb":"Returns json database",
             },
             post:{
-                "/hash":"Inserts new hash to database with the form {\"data\":\"salt:algorithm:iterations:hash:hash_time}\"",
-                "/crack":"Checks hash in databse with the form {\"data\":\"hash:username\" will update user cracks and hash cracks",
+                "/hash":"Inserts new hash to database with the form: {\"data\":\"salt:algorithm:iterations:hash:hash_time}\"",
+                "/crack":"Checks hash in databse with the form: {\"data\":\"hash:username\"} will update user cracks and hash cracks",
+                "/user":"Gets user cracks in database with the form: username will return number of cracks of user",
             },
         },
     });
@@ -318,6 +262,36 @@ router.route('/crack').post(function(req,res){
                 return;
             }
         });
+    });
+});
+
+router.post("/user",function(req,res){
+    //Get username from body of request with form:
+    //username
+    var username=req.body.data;
+    console.log(req.body);
+    if(username===undefined){
+        res.json({message:"username undefined"});
+        return;
+    };
+
+    var dynamodb=new AWS.DynamoDB();
+    var params={
+        TableName:config.aws_table_name2,
+        Key:{"username":{S:username}},
+        AttributesToGet:['cracks'],
+    };
+
+    console.log("Getting user cracks");
+    dynamodb.getItem(params, function(err, data) {
+        if (err){
+            console.log(err, err.stack);
+            res.json({message:err});
+            return;
+        }
+        console.log(data);
+        if(Object.keys(data).length===0&&data.constructor===Object)res.json({cracks:"0"}); //Return 0
+        else res.json({cracks:data.Item.cracks.N}); //User exists, return cracks
     });
 });
 
