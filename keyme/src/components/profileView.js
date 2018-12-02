@@ -29,6 +29,18 @@ export default class ProfileView extends Component{
         }
     }
 
+    deleteLocalStorage(){
+        //For all items in state
+        for(let key in this.state){
+            //If the key exists in localStorage
+            if(localStorage.hasOwnProperty(key)){
+                console.log(key);
+                localStorage.removeItem(key);
+                console.log(localStorage.removeItem(key));
+            }
+        }
+    }
+
     signOut=()=>{
         Auth.signOut()
             .then(data=>console.log(data))
