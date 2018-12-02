@@ -34,6 +34,11 @@ router.get("/",function(req,res){
                     "return":"{\"cracks\":{\"N\":\"0\"},\"hash\":{\"S\":\"4edf08edc95b2fdcbcaf2378fd12d8ac212c2aa6e326c59c3e629be3039d6432\"},\"date\":{\"S\":\"11/27/2018\"},\"hash_time\":{\"N\":\"22\"},\"salt\":{\"S\":\"exampleSalt\"},\"algorithm\":{\"S\":\"sha256\"},\"iterations\":{\"N\":\"1\"}}",
                     "description":"Gets hashes in database"
                 },
+                "/getusers":{
+                    "params":"none",
+                    "return":"{\"username\":{\"S\":\"username\"},\"cracks\":{\"N\":\"4\"}}",
+                    "description":"Gets users in database"
+                },
                 "/user":{
                     "params":"?user=username",
                     "return":"{\"cracks\":\"4\"}",
@@ -70,6 +75,20 @@ router.get("/getdb",function(req,res){
     });
 });
 
+router.get("/getusers",function(req,res){
+    var dynamodb=new AWS.DynamoDB();
+    var params={TableName:config.aws_table_name2};
+    dynamodb.scan(params,function(err,data){
+        if(err){
+            res.json({message:err});
+            console.log(err,err.stack); // an error occurred
+        }else{
+            res.json({message:data});
+            console.log(data);           // successful response
+        }
+    });
+});
+
 router.route('/hash').post(function(req,res){
     var data=req.body.data;
     console.log(req.body);
@@ -83,7 +102,7 @@ router.route('/hash').post(function(req,res){
         res.json({message:"salt undefined"});
         return;
     }
-    if(!(validator.isAscii(salt))){
+    if(salt!==""&&!(validator.isAscii(salt))){
         res.json({message:"ascii characters in salt only please"});
         return;
     }
@@ -137,23 +156,39 @@ router.route('/hash').post(function(req,res){
     date=mm+'/'+dd+'/'+date.getFullYear();
 
     var dynamodb=new AWS.DynamoDB();
-    var params={
-        "TableName":config.aws_table_name,
-        "Item":{
-            "hash":{"S":hash},
-            "algorithm":{"S":algorithm},
-            "date":{"S":date},
-            "hash_time":{"N":hash_time},
-            "iterations":{"N":iterations},
-            "salt":{"S":salt},
-            "cracks":{"N":"0"}
+    var params;
+    if(salt!==""){
+        params={
+            "TableName":config.aws_table_name,
+            "Item":{
+                "hash":{"S":hash},
+                "algorithm":{"S":algorithm},
+                "date":{"S":date},
+                "hash_time":{"N":hash_time},
+                "iterations":{"N":iterations},
+                "salt":{"S":salt},
+                "cracks":{"N":"0"}
+            }
+        }
+    }else{
+        params={
+            "TableName":config.aws_table_name,
+            "Item":{
+                "hash":{"S":hash},
+                "algorithm":{"S":algorithm},
+                "date":{"S":date},
+                "hash_time":{"N":hash_time},
+                "iterations":{"N":iterations},
+                "cracks":{"N":"0"}
+            }
         }
     }
+
     dynamodb.putItem(params,function(result){
         if(result==null){
             res.json({message:"success"});
             result="success";
-        }else res.json({message:result});
+        }else res.json({message:""+result});
         console.log(""+result);
     });
 });

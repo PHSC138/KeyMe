@@ -9,6 +9,7 @@ export default class CrackView extends Component{
 
         this.handleStringChange=this.handleStringChange.bind(this);
         this.handleIterationsChange=this.handleIterationsChange.bind(this);
+        this.handleAlgorithmChange=this.handleAlgorithmChange.bind(this);
         this.handleSaltChange=this.handleSaltChange.bind(this);
         this.doCrack=this.doCrack.bind(this);
     }
@@ -18,6 +19,11 @@ export default class CrackView extends Component{
     }
     handleIterationsChange(event){
         this.setState({iterations:event.target.value});
+    }
+    handleAlgorithmChange(event) {
+        console.log("algorithm:");
+        console.log(event.target.value);
+        this.setState({algorithm:event.target.value});
     }
     handleSaltChange(event){
         this.setState({salt:event.target.value});
@@ -51,8 +57,6 @@ export default class CrackView extends Component{
             if(localStorage.hasOwnProperty(key)){
                 //Get the key's value from localStorage
                 let value=localStorage.getItem(key);
-                console.log("key: "+key+" value: "+value);
-
                 //Parse the localStorage string and setState
                 try{
                     value=JSON.parse(value);
@@ -68,7 +72,7 @@ export default class CrackView extends Component{
     saveStateToLocalStorage(){
         //For every item in React state
         for(let key in this.state){
-            if(key==="message")continue;
+            if(key==="message"||key==="hash"||key==="elapsed")continue;
             //Save to localStorage
             localStorage.setItem(key,JSON.stringify(this.state[key]));
         }
@@ -115,7 +119,7 @@ export default class CrackView extends Component{
                     <tbody>
                         <tr>
                             <td>
-                                <label>String to hash:</label>
+                                <label>String to hash:&nbsp;&nbsp;&nbsp;&nbsp;</label>
                             </td>
                             <td>
                                 <input type="text" value={this.state.string} onChange={this.handleStringChange} />
@@ -123,7 +127,7 @@ export default class CrackView extends Component{
                         </tr>
                         <tr>
                             <td>
-                                <label>Iterations:</label>
+                                <label>Iterations:&nbsp;&nbsp;&nbsp;&nbsp;</label>
                             </td>
                             <td>
                                 <input type="number" value={this.state.iterations} onChange={this.handleIterationsChange} />
@@ -131,7 +135,20 @@ export default class CrackView extends Component{
                         </tr>
                         <tr>
                             <td>
-                                <label>Salt:</label>
+                                <label>Algorithm:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                            </td>
+                            <td>
+                                <select value={this.state.algorithm} onChange={this.handleAlgorithmChange}>
+                                    <option value="sha1">sha1</option>
+                                    <option value="sha256">sha256</option>
+                                    <option value="sha512">sha512</option>
+                                    <option value="md5">md5</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Salt:&nbsp;&nbsp;&nbsp;&nbsp;</label>
                             </td>
                             <td>
                                 <input type="text" value={this.state.salt} onChange={this.handleSaltChange} />

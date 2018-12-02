@@ -9,11 +9,14 @@ export default class HashView extends Component{
             algorithm:"sha256",
             iterations:1,
             salt:"",
-            message:""
+            message:"",
+            hash:"",
+            elapsed:"",
         };
 
         this.handleStringChange=this.handleStringChange.bind(this);
         this.handleIterationsChange=this.handleIterationsChange.bind(this);
+        this.handleAlgorithmChange=this.handleAlgorithmChange.bind(this);
         this.handleSaltChange=this.handleSaltChange.bind(this);
         this.doHash=this.doHash.bind(this);
     }
@@ -23,6 +26,11 @@ export default class HashView extends Component{
     }
     handleIterationsChange(event) {
         this.setState({iterations:event.target.value});
+    }
+    handleAlgorithmChange(event) {
+        console.log("algorithm:");
+        console.log(event.target.value);
+        this.setState({algorithm:event.target.value});
     }
     handleSaltChange(event) {
         this.setState({salt:event.target.value});
@@ -72,14 +80,13 @@ export default class HashView extends Component{
     saveStateToLocalStorage(){
         //For every item in React state
         for(let key in this.state){
-            if(key==="message")continue;
+            if(key==="message"||key==="hash"||key==="elapsed")continue;
             //Save to localStorage
             localStorage.setItem(key,JSON.stringify(this.state[key]));
         }
     }
 
     doHash(){
-        var _this=this;
         var opts={
             algorithm:this.state.algorithm,
             iterations:this.state.iterations,
@@ -88,31 +95,26 @@ export default class HashView extends Component{
         };
         var t0=performance.now();
 
-        var elapsed;
-        //secash breaks while returning
-        try{
-            sechash.strongHash(this.state.string,opts,function(err,hash){
-                var t1=performance.now();
-                elapsed=t1-t0;
-                hash=hash+":"+elapsed;
-                alert("Hash: "+hash+"\nTook: "+elapsed+" milliseconds.")
+        var hash=sechash.strongHashSync(this.state.string, opts);
+        var t1=performance.now();
+        var elapsed=t1-t0;
 
-                //Submit to db
-                let url="http://localhost:3001/api/hash";
+        //Update states
+        this.setState({hash:hash});
+        this.setState({elapsed:elapsed});
 
-                fetch(url,{
-                    method:"POST",
-                    headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({"data":hash})
-                }).then(function(res){
-                    return res.json();
-                }).then(function(data){
-                    _this.setState({message:data.message});
-                });
-            });
-        }catch(e){
-            //Do nothing
-        }
+        //Submit to db
+        let url="http://localhost:3001/api/hash";
+        var _this=this;
+        fetch(url,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({"data":hash+":"+elapsed})
+        }).then(function(res){
+            return res.json();
+        }).then(function(data){
+            _this.setState({message:data.message});
+        });
     }
 
     render(){
@@ -123,7 +125,7 @@ export default class HashView extends Component{
                     <tbody>
                         <tr>
                             <td>
-                                <label>String to hash:</label>
+                                <label>String to hash:&nbsp;&nbsp;&nbsp;&nbsp;</label>
                             </td>
                             <td>
                                 <input type="text" value={this.state.string} onChange={this.handleStringChange} />
@@ -131,7 +133,7 @@ export default class HashView extends Component{
                         </tr>
                         <tr>
                             <td>
-                                <label>Iterations:</label>
+                                <label>Iterations:&nbsp;&nbsp;&nbsp;&nbsp;</label>
                             </td>
                             <td>
                                 <input type="number" value={this.state.iterations} onChange={this.handleIterationsChange} />
@@ -139,7 +141,20 @@ export default class HashView extends Component{
                         </tr>
                         <tr>
                             <td>
-                                <label>Salt:</label>
+                                <label>Algorithm:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                            </td>
+                            <td>
+                                <select value={this.state.algorithm} onChange={this.handleAlgorithmChange}>
+                                    <option value="sha1">sha1</option>
+                                    <option value="sha256">sha256</option>
+                                    <option value="sha512">sha512</option>
+                                    <option value="md5">md5</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Salt:&nbsp;&nbsp;&nbsp;&nbsp;</label>
                             </td>
                             <td>
                                 <input type="text" value={this.state.salt} onChange={this.handleSaltChange} />
@@ -154,6 +169,14 @@ export default class HashView extends Component{
                         </tr>
                     </tbody>
                 </table>
+                <div>
+                    {this.state.hash!==""&&
+                        <div>
+                        <h4>Hash: {this.state.hash.split(":")[3]}</h4>
+                        <h4>Elapsed: {this.state.elapsed}ms</h4>
+                        </div>
+                    }
+                </div>
                 <div>
                     {this.state.message==="success"&& <h4 style={{color:"green"}}>Response: {this.state.message}</h4>}
                     {(this.state.message!=="success"&&this.state.message!=="")&& <h4 style={{color:"red"}}>Response: {this.state.message}</h4>}
