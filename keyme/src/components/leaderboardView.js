@@ -8,6 +8,7 @@ export default class LeaderboardView extends Component{
         }
     }
 
+    //comment
     getData(){
         //Get data from db
         let url="http://localhost:3001/api/getusers";
