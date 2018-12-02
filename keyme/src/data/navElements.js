@@ -21,9 +21,9 @@ export default{
             "url":"/db",
         },
         {
-            "text":"About",
-            "url":"/about",
-        }
+            "text":"Profile",
+            "url":"/profile",
+        },
     ]
 };
 

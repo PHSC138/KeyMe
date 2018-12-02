@@ -1,4 +1,3 @@
-const {PerformanceObserver,performance}=require('perf_hooks');
 var sechash=require('sechash');
 
 var opts={

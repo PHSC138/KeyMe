@@ -18,6 +18,63 @@ var port=process.env.PORT||3001;
 app.use(cors());
 var router=express.Router();
 
+//Helper functions
+initUser=(username)=>{
+};
+
+getUserCracks=(username)=>{
+    console.log("In getUserCracks");
+    console.log(typeof(username));
+    var dynamodb=new AWS.DynamoDB();
+    //Check if username has a crack
+    //Returns positive number of cracks if successful, -1 if not found, and -2 for error
+    var params={
+        TableName:config.aws_table_name2,
+        Key:{
+            "username":{
+                S:username
+            },
+        },
+        AttributesToGet:[
+            'cracks',
+        ],
+    }
+
+    console.log("new get items");
+    dynamodb.getItem(params, function(err, data) {
+           if (err){
+               console.log("NEW GET ITEMS ERROR");
+               console.log(err, err.stack); // an error occurred
+           }
+           else{
+               console.log("NEW GET ITEMS DATA");
+               console.log(data);
+           }
+    });
+
+
+    console.log("old get items");
+    var cracks = dynamodb.getItem(params);
+
+    //console.log("cracks: ");
+    //console.log(cracks);
+    console.log("data:");
+    var data=cracks.response.data;
+    console.log(data);
+    if(data==null){
+        console.log("returning -1");
+        return -1;
+    }
+    //let cracks=1;
+    if(data===null){
+        console.log("NULL");
+        initUser(username);
+    }else{
+        cracks=parseInt(data.Item.cracks.N);
+    }
+    return cracks;
+}
+
 //Default route: http://localhost:3001/api
 router.get("/",function(req,res){
     res.json({
@@ -29,7 +86,7 @@ router.get("/",function(req,res){
             },
             post:{
                 "/hash":"Inserts new hash to database with the form {\"data\":\"salt:algorithm:iterations:hash:hash_time}\"",
-                "/crack":"Checks hash in databse with the form {\"data\":\"hash\"",
+                "/crack":"Checks hash in databse with the form {\"data\":\"hash:username\" will update user cracks and hash cracks",
             },
         },
     });
@@ -145,11 +202,22 @@ router.route('/hash').post(function(req,res){
 
 router.route('/crack').post(function(req,res){
     //Get hash from body of request with form:
-    //4edf07edc95b2fdcbcaf2378fd12d8ac212c2aa6e326c59c3e629be3039d6432
-    var hash=req.body.data;
+    //hash:username
+    var data=req.body.data;
     console.log(req.body);
-    if(hash===undefined){
+    if(data===undefined){
         res.json({message:"data undefined"});
+        return;
+    }
+    var split=data.split(":");
+    var hash=split[0];
+    if(hash==undefined){
+        res.json({message:"hash undefined"});
+        return;
+    }
+    var username=split[1];
+    if(username==undefined){
+        res.json({message:"username undefined"});
         return;
     }
 
@@ -158,14 +226,8 @@ router.route('/crack').post(function(req,res){
     console.log("Getting item for hash.");
     var params={
         TableName:config.aws_table_name,
-        Key:{
-            "hash":{
-                S:hash
-            },
-        },
-        AttributesToGet:[
-            'cracks',
-        ],
+        Key:{"hash":{S:hash}},
+        AttributesToGet:['cracks'],
     }
     dynamodb.getItem(params,function(err,data){
         if(err){
@@ -173,11 +235,63 @@ router.route('/crack').post(function(req,res){
             console.log(err, err.stack); // an error occurred
             return;
         }
-        console.log(data);           // successful response
+        console.log("getItem data;");
+        console.log(data);
         if(Object.keys(data).length===0&&data.constructor===Object){
             res.json({message:"hash not found"});
             return;
         }
+
+        var params={
+            TableName:config.aws_table_name2,
+            Key:{"username":{S:username}},
+            AttributesToGet:['cracks'],
+        }
+
+        console.log("Checking user");
+        dynamodb.getItem(params, function(err, data) {
+            if (err){
+                console.log("GET USER ERROR");
+                console.log(err, err.stack); // an error occurred
+                res.json({message:err});
+                return;
+            }
+            console.log("GET USER DATA");
+            console.log(data);
+            if(Object.keys(data).length===0&&data.constructor===Object){
+                //CREATE NEW USER WITH 1 CRACK
+                var params={
+                    TableName:config.aws_table_name2,
+                    Item:{
+                        username:{S:username},
+                        cracks:{N:"1"}
+                    }
+                };
+                dynamodb.putItem(params,function(err,data){
+                    if (err) console.log("CREATE USER ERROR",err, err.stack); // an error occurred
+                    else console.log("CREATE USER SUCCESS",data);           // successful response
+                });
+            }else{
+                let uCracks=parseInt(data.Item.cracks.N);
+                uCracks+=1;
+                uCracks=uCracks.toString();
+                //User exists, update User cracks
+                var params={
+                    TableName:config.aws_table_name2,
+                    Key:{"username":{S:username}},
+                    ExpressionAttributeNames:{"#C":"cracks"},
+                    ExpressionAttributeValues:{":n":{N:uCracks}},
+                    ReturnValues:"ALL_NEW",
+                    UpdateExpression:"SET #C=:n"
+                }
+
+                dynamodb.updateItem(params,function(err,data){
+                    if(err) console.log("UPDATE USER ERROR",err, err.stack); // an error occurred
+                    else console.log("UPDATE USER SUCCESS",data);           // successful response
+                });
+            }
+        });
+
         let cracks=parseInt(data.Item.cracks.N);
         cracks+=1;
         cracks=cracks.toString();
@@ -185,21 +299,11 @@ router.route('/crack').post(function(req,res){
         console.log("Updating item");
         var params={
             TableName:config.aws_table_name,
-            Key:{
-                "hash":{
-                    S:hash
-                },
-            },
-            ExpressionAttributeNames:{
-                "#C":"cracks"
-            },
-            ExpressionAttributeValues: {
-                ":n":{
-                    N:cracks
-                },
-            },
+            Key:{"hash":{S:hash}},
+            ExpressionAttributeNames:{"#C":"cracks"},
+            ExpressionAttributeValues:{":n":{N:cracks}},
             ReturnValues:"ALL_NEW",
-            UpdateExpression: "SET #C=:n"
+            UpdateExpression:"SET #C=:n"
         }
 
         dynamodb.updateItem(params,function(err, data){
@@ -215,7 +319,6 @@ router.route('/crack').post(function(req,res){
             }
         });
     });
-
 });
 
 app.use("/api",router);

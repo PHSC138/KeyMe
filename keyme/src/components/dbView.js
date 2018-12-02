@@ -4,7 +4,7 @@ export default class DatabaseView extends Component{
     constructor(props){
         super(props);
         this.state={
-            data:['Loading']
+            data:['<tr><td>Loading</td></tr>']
         }
     }
 
@@ -22,7 +22,7 @@ export default class DatabaseView extends Component{
             /*"cracks":{"N":"0"},"hash":{"S":"4edf08edc95b2fdcbcaf2378fd12d8ac212c2aa6e326c59c3e629be3039d6432"},"date":{"S":"11/27/2018"},"hash_time":{"N":"22"},"salt":{"S":"postman"},"algorithm":{"S":"sha256"},"iterations":{"N":"1"}*/
             for(let i=0;i<data.message.Items.length;i++){
                 items.push(
-                    <tr>
+                    <tr key={i}>
                         <td>{data.message.Items[i].hash.S}</td>
                         <td>{data.message.Items[i].salt.S}</td>
                         <td>{data.message.Items[i].iterations.N}</td>

@@ -79,20 +79,12 @@ export default class TestView extends Component{
         };
         var t0=performance.now();
 
-        let gElapsed,gHash;
-        //secash breaks while returning
-        try{
-            sechash.strongHash(this.state.string,opts,function(err,hash){
-                var t1=performance.now();
-                gElapsed=t1-t0;
-                gHash=hash;
-            });
-        }catch(e){
-            //Do nothing
-        }
+        var hash=sechash.strongHashSync('Your String', opts);
+        var t1=performance.now();
+        let elapsed=t1-t0;
         //Update states
-        this.setState({hash:gHash});
-        this.setState({elapsed:gElapsed});
+        this.setState({hash:hash});
+        this.setState({elapsed:elapsed});
     }
 
     render(){

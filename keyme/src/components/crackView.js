@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import AWSUser from '../aws/awsUser'
 var sechash=require('sechash');
 
 export default class CrackView extends Component{
@@ -80,9 +81,12 @@ export default class CrackView extends Component{
         };
 
         //secash breaks while returning
+
         try{
             sechash.strongHash(this.state.string,opts,function(err,hash){
                 var split=hash.split(":");
+                let username=AWSUser.getInstance().getUser();
+                let fetchData=split[3]+":"+username;
 
                 //Check hash in db
                 let url="http://localhost:3001/api/crack";
@@ -90,7 +94,7 @@ export default class CrackView extends Component{
                 fetch(url,{
                     method:"POST",
                     headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({"data":split[3]})
+                    body:JSON.stringify({"data":fetchData})
                 }).then(function(res){
                     return res.json();
                 }).then(function(data){
