@@ -89,6 +89,34 @@ router.get("/getusers",function(req,res){
     });
 });
 
+router.get("/user",function(req,res){
+    var username=req.query.user;
+    console.log(req.body);
+    if(username===undefined){
+        res.json({message:"username undefined"});
+        return;
+    };
+
+    console.log("Getting user cracks");
+    var dynamodb=new AWS.DynamoDB();
+    var params={
+        TableName:config.aws_table_name2,
+        Key:{"username":{S:username}},
+        AttributesToGet:['cracks'],
+    };
+
+    dynamodb.getItem(params, function(err, data) {
+        if (err){
+            console.log(err, err.stack);
+            res.json({message:""+err});
+            return;
+        }
+        console.log(data);
+        if(Object.keys(data).length===0&&data.constructor===Object)res.json({cracks:"0"}); //Return 0
+        else res.json({cracks:data.Item.cracks.N}); //User exists, return cracks
+    });
+});
+
 router.route('/hash').post(function(req,res){
     var data=req.body.data;
     console.log(req.body);
@@ -157,51 +185,71 @@ router.route('/hash').post(function(req,res){
         return;
     }
 
-    var date=new Date();
-    var dd=date.getDate();
-    var mm=date.getMonth()+1;
-
-    if(dd<10)dd='0'+dd
-    if(mm<10)mm='0'+mm
-    date=mm+'/'+dd+'/'+date.getFullYear();
-
+    //Check if hash already exists
+    console.log("Getting item for hash.");
     var dynamodb=new AWS.DynamoDB();
-    var params;
-    if(salt!==""){
-        params={
-            "TableName":config.aws_table_name,
-            "Item":{
-                "hash":{"S":hash},
-                "algorithm":{"S":algorithm},
-                "date":{"S":date},
-                "hash_time":{"N":hash_time},
-                "iterations":{"N":iterations},
-                "salt":{"S":salt},
-                "cracks":{"N":"0"},
-                "users":{"L":[{"S":user}]}
-            }
-        }
-    }else{
-        params={
-            "TableName":config.aws_table_name,
-            "Item":{
-                "hash":{"S":hash},
-                "algorithm":{"S":algorithm},
-                "date":{"S":date},
-                "hash_time":{"N":hash_time},
-                "iterations":{"N":iterations},
-                "cracks":{"N":"0"},
-                "users":{"L":[{"S":user}]}
-            }
-        }
+    var params={
+        TableName:config.aws_table_name,
+        Key:{"hash":{S:hash}},
+        AttributesToGet:['cracks'],
     }
+    dynamodb.getItem(params,function(err,data){
+        if(err) console.log(err, err.stack); // an error occurred
 
-    dynamodb.putItem(params,function(result){
-        if(result==null){
-            res.json({message:"success"});
-            result="success";
-        }else res.json({message:""+result});
+        console.log("getItem data;");
+        console.log(data);
+
+        //Hash exists
+        if(Object.keys(data).length!==0){
+            res.json({message:"hash already exists"});
+            return;
+        }
+        var date=new Date();
+        var dd=date.getDate();
+        var mm=date.getMonth()+1;
+
+        if(dd<10)dd='0'+dd
+        if(mm<10)mm='0'+mm
+        date=mm+'/'+dd+'/'+date.getFullYear();
+
+        var dynamodb=new AWS.DynamoDB();
+        var params;
+        if(salt!==""){
+            params={
+                "TableName":config.aws_table_name,
+                "Item":{
+                    "hash":{"S":hash},
+                    "algorithm":{"S":algorithm},
+                    "date":{"S":date},
+                    "hash_time":{"N":hash_time},
+                    "iterations":{"N":iterations},
+                    "salt":{"S":salt},
+                    "cracks":{"N":"0"},
+                    "users":{"L":[{"S":user}]}
+                }
+            }
+        }else{
+            params={
+                "TableName":config.aws_table_name,
+                "Item":{
+                    "hash":{"S":hash},
+                    "algorithm":{"S":algorithm},
+                    "date":{"S":date},
+                    "hash_time":{"N":hash_time},
+                    "iterations":{"N":iterations},
+                    "cracks":{"N":"0"},
+                    "users":{"L":[{"S":user}]}
+                }
+            }
+        }
+
+        dynamodb.putItem(params,function(result){
+            if(result==null){
+                res.json({message:"success"});
+                result="success";
+            }else res.json({message:""+result});
         console.log(""+result);
+        });
     });
 });
 
@@ -253,7 +301,6 @@ router.route("/crack").post(function(req,res){
                 return;
             }
         }
-
 
         console.log("Updating user cracks");
         var params={
@@ -308,34 +355,6 @@ router.route("/crack").post(function(req,res){
             res.json({message:"success"});
             return;
         });
-    });
-});
-
-router.get("/user",function(req,res){
-    var username=req.query.user;
-    console.log(req.body);
-    if(username===undefined){
-        res.json({message:"username undefined"});
-        return;
-    };
-
-    console.log("Getting user cracks");
-    var dynamodb=new AWS.DynamoDB();
-    var params={
-        TableName:config.aws_table_name2,
-        Key:{"username":{S:username}},
-        AttributesToGet:['cracks'],
-    };
-
-    dynamodb.getItem(params, function(err, data) {
-        if (err){
-            console.log(err, err.stack);
-            res.json({message:""+err});
-            return;
-        }
-        console.log(data);
-        if(Object.keys(data).length===0&&data.constructor===Object)res.json({cracks:"0"}); //Return 0
-        else res.json({cracks:data.Item.cracks.N}); //User exists, return cracks
     });
 });
 
