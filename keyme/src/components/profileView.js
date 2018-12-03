@@ -41,11 +41,13 @@ export default class ProfileView extends Component{
 
     signOut=()=>{
         this.deleteLocalStorage();
-        Auth.signOut()
-            .then(data=>console.log(data))
-            .catch(err=>console.log(err));
         this.props.history.push("/keyme");
-        window.location.reload();
+        Auth.signOut()
+            .then(data=>{
+                console.log(data);
+                window.location.reload();
+            })
+            .catch(err=>console.log(err));
     }
 
     render(){
