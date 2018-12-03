@@ -364,7 +364,7 @@ router.route("/crack").post(function(req,res){
     });
 });
 
-app.use("/api",router);
+app.use("/keyme/api",router);
 
 app.listen(port);
 console.log("KeyMe-API started on port "+port+".");
