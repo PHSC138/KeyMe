@@ -20,7 +20,7 @@ export default class ProfileView extends Component{
             let username=user.getUser();
             this.setState({user:username});
             console.log(username);
-            let url="https://www.phsc138.com/api/user?user="+username;
+            let url="http://142.93.121.209:3001/api/user?user="+username;
             fetch(url).then(res=>{
                 return res.json();
             }).then(data=>{
