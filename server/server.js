@@ -364,11 +364,7 @@ router.route("/crack").post(function(req,res){
     });
 });
 
-app.use("/keyme/api",router);
-const options = {
-        cert: fs.readFileSync('/etc/letsencrypt/live/www.phsc138.com/fullchain.pem'),
-        key: fs.readFileSync('/etc/letsencrypt/live/www.phsc138.com/privkey.pem')
-};
+app.use("/",router);
 
 app.listen(port);
 console.log("KeyMe-API started on port "+port+".");
