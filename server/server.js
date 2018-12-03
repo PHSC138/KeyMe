@@ -4,6 +4,7 @@ var bodyParser=require('body-parser');
 var validator=require('validator');
 var AWS=require('aws-sdk');
 var cors=require('cors');
+var https = require('https');
 
 //Configure AWS
 const config=require('./config');
@@ -365,6 +366,11 @@ router.route("/crack").post(function(req,res){
 });
 
 app.use("/keyme/api",router);
+const options = {
+        cert: fs.readFileSync('/etc/letsencrypt/live/www.phsc138.com/fullchain.pem'),
+        key: fs.readFileSync('/etc/letsencrypt/live/www.phsc138.com/privkey.pem')
+};
 
-app.listen(port);
+app.listen(3002);
+https.createServer(options, app).listen(port);
 console.log("KeyMe-API started on port "+port+".");
