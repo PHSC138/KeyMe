@@ -20,6 +20,7 @@ var router=express.Router();
 
 //Default route: http://localhost:3001/api
 router.get("/",function(req,res){
+    res.set("Access-Control-Allow-Origin","*");
     res.json({
         message:"KeyMe-API",
         functions:{
@@ -62,6 +63,7 @@ router.get("/",function(req,res){
 });
 
 router.get("/getdb",function(req,res){
+    res.set("Access-Control-Allow-Origin","*");
     var dynamodb=new AWS.DynamoDB();
     var params={TableName:config.aws_table_name};
     dynamodb.scan(params,function(err,data){
@@ -76,6 +78,7 @@ router.get("/getdb",function(req,res){
 });
 
 router.get("/getusers",function(req,res){
+    res.set("Access-Control-Allow-Origin","*");
     var dynamodb=new AWS.DynamoDB();
     var params={TableName:config.aws_table_name2};
     dynamodb.scan(params,function(err,data){
@@ -90,6 +93,7 @@ router.get("/getusers",function(req,res){
 });
 
 router.get("/user",function(req,res){
+    res.set("Access-Control-Allow-Origin","*");
     var username=req.query.user;
     console.log(req.body);
     if(username===undefined){
@@ -118,6 +122,7 @@ router.get("/user",function(req,res){
 });
 
 router.route('/hash').post(function(req,res){
+    res.set("Access-Control-Allow-Origin","*");
     var data=req.body.data;
     console.log(req.body);
     if(data===undefined){
@@ -254,6 +259,7 @@ router.route('/hash').post(function(req,res){
 });
 
 router.route("/crack").post(function(req,res){
+    res.set("Access-Control-Allow-Origin","*");
     var data=req.body.data;
     console.log(req.body);
     if(data===undefined){
