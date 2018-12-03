@@ -2,7 +2,7 @@
   "name": "keyme",
   "version": "0.1.0",
   "private": true,
-  "homepage" : "http://PHSC138.github.io/KeyMe",
+  "homepage" : "/keyme",
   "dependencies": {
     "async": "^2.6.1",
     "aws-amplify": "^1.1.10",
