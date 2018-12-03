@@ -1,11 +1,11 @@
 import React,{Component} from 'react';
-import {BrowserRouter as Router,Route} from 'react-router-dom';
+import {BrowserRouter as Router,Route,Redirect} from 'react-router-dom';
 import Nav from './components/top_nav';
 import HashView from './components/hashView';
 import CrackView from './components/crackView';
 import TestView from './components/testView';
 import DatabaseView from './components/dbView';
-import AboutView from './components/aboutView';
+import WelcomeView from './components/welcomeView';
 import ProfileView from './components/profileView';
 import './css/App.css';
 
@@ -35,12 +35,13 @@ export class App extends Component{
             <Router>
                 <div className="App">
                     <Nav/>
-                    <Route exact={true} path="/" component={AboutView}/>
-                    <Route path="/hash" component={HashView}/>
-                    <Route path="/crack" component={CrackView}/>
-                    <Route path="/test" component={TestView}/>
-                    <Route path="/db" component={DatabaseView}/>
-                    <Route path="/profile" component={ProfileView}/>
+                    <Route exact={true} path="/" render={()=>(<Redirect to="/keyme"/>)}/>
+                    <Route exact={true} path="/keyme" component={WelcomeView}/>
+                    <Route path="/keyme/hash" component={HashView}/>
+                    <Route path="/keyme/crack" component={CrackView}/>
+                    <Route path="/keyme/test" component={TestView}/>
+                    <Route path="/keyme/db" component={DatabaseView}/>
+                    <Route path="/keyme/profile" component={ProfileView}/>
                 </div>
             </Router>
         );

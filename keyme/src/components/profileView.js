@@ -40,10 +40,10 @@ export default class ProfileView extends Component{
     }
 
     signOut=()=>{
+        this.deleteLocalStorage();
         Auth.signOut()
             .then(data=>console.log(data))
             .catch(err=>console.log(err));
-        this.deleteLocalStorage();
         this.props.history.push("/");
         window.location.reload();
     }

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import AWSUser from '../aws/awsUser'
 var sechash=require('sechash');
 
 export default class HashView extends Component{
@@ -21,18 +22,16 @@ export default class HashView extends Component{
         this.doHash=this.doHash.bind(this);
     }
 
-    handleStringChange(event) {
+    handleStringChange(event){
         this.setState({string:event.target.value});
     }
-    handleIterationsChange(event) {
+    handleIterationsChange(event){
         this.setState({iterations:event.target.value});
     }
-    handleAlgorithmChange(event) {
-        console.log("algorithm:");
-        console.log(event.target.value);
+    handleAlgorithmChange(event){
         this.setState({algorithm:event.target.value});
     }
-    handleSaltChange(event) {
+    handleSaltChange(event){
         this.setState({salt:event.target.value});
     }
 
@@ -40,8 +39,7 @@ export default class HashView extends Component{
     componentDidMount(){
         this.hydrateStateWithLocalStorage();
 
-        //Add event listener to save state to localStorage
-        //When user leaves/refreshes the page
+        //Add event listener to save state to localStorage when user leaves/refreshes the page
         window.addEventListener(
             "beforeunload",
             this.saveStateToLocalStorage.bind(this)
@@ -90,7 +88,6 @@ export default class HashView extends Component{
         var opts={
             algorithm:this.state.algorithm,
             iterations:this.state.iterations,
-            //LastPass: 105000
             salt:this.state.salt
         };
         var t0=performance.now();
@@ -109,7 +106,7 @@ export default class HashView extends Component{
         fetch(url,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({"data":hash+":"+elapsed})
+            body:JSON.stringify({"data":hash+":"+elapsed+":"+AWSUser.getInstance().getUser()})
         }).then(function(res){
             return res.json();
         }).then(function(data){

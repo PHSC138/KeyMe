@@ -2,27 +2,27 @@ export default{
     elements:[
         {
             "text":"Home",
-            "url":"/",
+            "url":"/keyme",
         },
         {
             "text":"Hash",
-            "url":"/hash",
+            "url":"/keyme/hash",
         },
         {
             "text":"Crack",
-            "url":"/crack",
+            "url":"/keyme/crack",
         },
         {
             "text":"Test",
-            "url":"/test",
+            "url":"/keyme/test",
         },
         {
             "text":"Database",
-            "url":"/db",
+            "url":"/keyme/db",
         },
         {
             "text":"Profile",
-            "url":"/profile",
+            "url":"/keyme/profile",
         },
     ]
 };
