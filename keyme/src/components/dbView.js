@@ -10,7 +10,7 @@ export default class DatabaseView extends Component{
 
     getData(){
         //Get data from db
-        let url="http://142.93.121.209:3001/api/getdb";
+        let url="http://142.93.121.209/api/getdb";
         fetch(url,{
             method:"GET",
         }).then(res=>{
