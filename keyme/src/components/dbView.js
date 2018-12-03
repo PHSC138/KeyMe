@@ -10,7 +10,7 @@ export default class DatabaseView extends Component{
 
     getData(){
         //Get data from db
-        let url="http://localhost:3001/api/getdb";
+        let url="https://phsc138.com/api/getdb";
         fetch(url,{
             method:"GET",
         }).then(res=>{

@@ -11,7 +11,7 @@ export default class LeaderboardView extends Component{
     //comment
     getData(){
         //Get data from db
-        let url="http://localhost:3001/api/getusers";
+        let url="https://www.phsc138.com/api/getusers";
         fetch(url,{
             method:"GET",
         }).then(res=>{

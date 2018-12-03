@@ -101,7 +101,7 @@ export default class HashView extends Component{
         this.setState({elapsed:elapsed});
 
         //Submit to db
-        let url="http://localhost:3001/api/hash";
+        let url="https://www.phsc138.com/api/hash";
         var _this=this;
         fetch(url,{
             method:"POST",

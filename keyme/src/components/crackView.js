@@ -95,7 +95,7 @@ export default class CrackView extends Component{
                 let fetchData=split[3]+":"+username;
 
                 //Check hash in db
-                let url="http://localhost:3001/api/crack";
+                let url="https://www.phsc138.com/api/crack";
 
                 fetch(url,{
                     method:"POST",
