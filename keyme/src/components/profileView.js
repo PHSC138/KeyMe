@@ -44,7 +44,7 @@ export default class ProfileView extends Component{
         Auth.signOut()
             .then(data=>console.log(data))
             .catch(err=>console.log(err));
-        this.props.history.push("/");
+        this.props.history.push("/keyme");
         window.location.reload();
     }
 
